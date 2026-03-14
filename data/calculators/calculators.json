@@ -2,92 +2,740 @@
   "calculators": [
     {
       "id": "oee-calculator",
-      "name": "OEE 计算器",
-      "description": "计算设备综合效率（Overall Equipment Effectiveness），衡量设备生产效率的核心指标",
+      "name": "OEE 设备综合效率",
+      "description": "计算设备综合效率，需输入运行时间、计划时间、产量、合格品数等基础数据",
       "category": "效率指标",
       "formula": "OEE = 可用率 × 性能率 × 质量率",
       "fields": [
         {
-          "id": "availability",
-          "label": "可用率",
+          "id": "plannedTime",
+          "label": "计划生产时间",
           "type": "number",
-          "unit": "%",
-          "placeholder": "请输入可用率（0-100）",
+          "unit": "分钟",
+          "placeholder": "请输入计划生产时间",
           "required": true
         },
         {
-          "id": "performance",
-          "label": "性能率",
+          "id": "downtime",
+          "label": "停机时间",
           "type": "number",
-          "unit": "%",
-          "placeholder": "请输入性能率（0-100）",
+          "unit": "分钟",
+          "placeholder": "请输入故障停机时间",
           "required": true
         },
         {
-          "id": "quality",
-          "label": "质量率",
+          "id": "actualOutput",
+          "label": "实际产量",
           "type": "number",
-          "unit": "%",
-          "placeholder": "请输入质量率（0-100）",
+          "unit": "件",
+          "placeholder": "请输入实际产量",
+          "required": true
+        },
+        {
+          "id": "standardCycleTime",
+          "label": "标准周期时间",
+          "type": "number",
+          "unit": "秒/件",
+          "placeholder": "请输入标准周期时间",
+          "required": true
+        },
+        {
+          "id": "goodProducts",
+          "label": "合格品数量",
+          "type": "number",
+          "unit": "件",
+          "placeholder": "请输入合格品数量",
           "required": true
         }
       ],
-      "calculation": "result = (availability / 100) * (performance / 100) * (quality / 100) * 100",
+      "calculation": "const runTime = plannedTime - downtime; const availability = runTime / plannedTime; const theoreticalOutput = (runTime * 60) / standardCycleTime; const performance = actualOutput / theoreticalOutput; const quality = goodProducts / actualOutput; result = availability * performance * quality * 100",
+      "resultUnit": "%",
+      "showDetails": true,
+      "detailLabels": ["可用率 (%)", "性能率 (%)", "质量率 (%)"]
+    },
+    {
+      "id": "availability-calculator",
+      "name": "设备可用率",
+      "description": "计算设备可用率，反映设备运行时间占计划时间的比例",
+      "category": "效率指标",
+      "formula": "可用率 = 运行时间 / 计划时间 × 100%",
+      "fields": [
+        {
+          "id": "plannedTime",
+          "label": "计划生产时间",
+          "type": "number",
+          "unit": "分钟",
+          "placeholder": "请输入计划生产时间",
+          "required": true
+        },
+        {
+          "id": "breakdownTime",
+          "label": "故障停机时间",
+          "type": "number",
+          "unit": "分钟",
+          "placeholder": "请输入故障停机时间",
+          "required": false
+        },
+        {
+          "id": "changeoverTime",
+          "label": "换模时间",
+          "type": "number",
+          "unit": "分钟",
+          "placeholder": "请输入换模时间",
+          "required": false
+        },
+        {
+          "id": "waitingTime",
+          "label": "等待时间",
+          "type": "number",
+          "unit": "分钟",
+          "placeholder": "请输入等待时间（缺料等）",
+          "required": false
+        }
+      ],
+      "calculation": "const totalDowntime = (breakdownTime || 0) + (changeoverTime || 0) + (waitingTime || 0); const runTime = plannedTime - totalDowntime; result = (runTime / plannedTime) * 100",
+      "resultUnit": "%"
+    },
+    {
+      "id": "performance-calculator",
+      "name": "设备性能率",
+      "description": "计算设备性能率，反映实际产量与理论产量的比例",
+      "category": "效率指标",
+      "formula": "性能率 = (实际产量 × 标准周期时间) / 运行时间 × 100%",
+      "fields": [
+        {
+          "id": "actualOutput",
+          "label": "实际产量",
+          "type": "number",
+          "unit": "件",
+          "placeholder": "请输入实际产量",
+          "required": true
+        },
+        {
+          "id": "standardCycleTime",
+          "label": "标准周期时间",
+          "type": "number",
+          "unit": "秒/件",
+          "placeholder": "请输入标准周期时间",
+          "required": true
+        },
+        {
+          "id": "runTime",
+          "label": "运行时间",
+          "type": "number",
+          "unit": "分钟",
+          "placeholder": "请输入设备运行时间",
+          "required": true
+        }
+      ],
+      "calculation": "result = ((actualOutput * standardCycleTime) / (runTime * 60)) * 100",
+      "resultUnit": "%"
+    },
+    {
+      "id": "quality-rate-calculator",
+      "name": "产品质量率",
+      "description": "计算产品质量率，反映合格品占总产量的比例",
+      "category": "效率指标",
+      "formula": "质量率 = 合格品数量 / 总产量 × 100%",
+      "fields": [
+        {
+          "id": "totalOutput",
+          "label": "总产量",
+          "type": "number",
+          "unit": "件",
+          "placeholder": "请输入总产量",
+          "required": true
+        },
+        {
+          "id": "goodProducts",
+          "label": "合格品数量",
+          "type": "number",
+          "unit": "件",
+          "placeholder": "请输入合格品数量",
+          "required": true
+        }
+      ],
+      "calculation": "result = (goodProducts / totalOutput) * 100",
       "resultUnit": "%"
     },
     {
       "id": "takt-time-calculator",
-      "name": "节拍时间计算器",
+      "name": "节拍时间",
       "description": "计算生产节拍时间，即满足客户需求的生产速率",
       "category": "生产计划",
-      "formula": "节拍时间 = 可用时间 / 需求数量",
+      "formula": "节拍时间 = 可用时间 / 客户需求量",
       "fields": [
         {
-          "id": "availableTime",
-          "label": "可用时间",
+          "id": "shiftsPerDay",
+          "label": "每日班次",
           "type": "number",
-          "unit": "分钟",
-          "placeholder": "请输入每日可用生产时间",
+          "unit": "班",
+          "placeholder": "请输入每日班次数",
           "required": true
         },
         {
-          "id": "demandQuantity",
-          "label": "需求数量",
+          "id": "hoursPerShift",
+          "label": "每班工作时间",
+          "type": "number",
+          "unit": "小时",
+          "placeholder": "请输入每班工作时间",
+          "required": true
+        },
+        {
+          "id": "breakMinutesPerShift",
+          "label": "每班休息时间",
+          "type": "number",
+          "unit": "分钟",
+          "placeholder": "请输入每班休息时间",
+          "required": false
+        },
+        {
+          "id": "workingDaysPerMonth",
+          "label": "每月工作天数",
+          "type": "number",
+          "unit": "天",
+          "placeholder": "请输入每月工作天数",
+          "required": true
+        },
+        {
+          "id": "monthlyDemand",
+          "label": "月需求量",
           "type": "number",
           "unit": "件",
-          "placeholder": "请输入客户需求数量",
+          "placeholder": "请输入月客户需求量",
           "required": true
         }
       ],
-      "calculation": "result = availableTime / demandQuantity",
+      "calculation": "const dailyAvailableMinutes = shiftsPerDay * (hoursPerShift * 60 - (breakMinutesPerShift || 0)); const dailyDemand = monthlyDemand / workingDaysPerMonth; result = dailyAvailableMinutes / dailyDemand",
       "resultUnit": "分钟/件"
     },
     {
+      "id": "cycle-time-calculator",
+      "name": "周期时间",
+      "description": "计算单个产品的生产周期时间",
+      "category": "生产计划",
+      "formula": "周期时间 = 总生产时间 / 产量",
+      "fields": [
+        {
+          "id": "totalProductionTime",
+          "label": "总生产时间",
+          "type": "number",
+          "unit": "分钟",
+          "placeholder": "请输入总生产时间",
+          "required": true
+        },
+        {
+          "id": "outputQuantity",
+          "label": "产量",
+          "type": "number",
+          "unit": "件",
+          "placeholder": "请输入产量",
+          "required": true
+        }
+      ],
+      "calculation": "result = totalProductionTime / outputQuantity",
+      "resultUnit": "分钟/件"
+    },
+    {
+      "id": "line-balancing-calculator",
+      "name": "生产线平衡率",
+      "description": "计算生产线平衡率，评估各工位工作量的均衡程度",
+      "category": "生产计划",
+      "formula": "平衡率 = Σ各工序时间 / (工位数 × 节拍时间) × 100%",
+      "fields": [
+        {
+          "id": "station1Time",
+          "label": "工位1周期时间",
+          "type": "number",
+          "unit": "秒",
+          "placeholder": "请输入工位1周期时间",
+          "required": true
+        },
+        {
+          "id": "station2Time",
+          "label": "工位2周期时间",
+          "type": "number",
+          "unit": "秒",
+          "placeholder": "请输入工位2周期时间",
+          "required": false
+        },
+        {
+          "id": "station3Time",
+          "label": "工位3周期时间",
+          "type": "number",
+          "unit": "秒",
+          "placeholder": "请输入工位3周期时间",
+          "required": false
+        },
+        {
+          "id": "station4Time",
+          "label": "工位4周期时间",
+          "type": "number",
+          "unit": "秒",
+          "placeholder": "请输入工位4周期时间",
+          "required": false
+        },
+        {
+          "id": "station5Time",
+          "label": "工位5周期时间",
+          "type": "number",
+          "unit": "秒",
+          "placeholder": "请输入工位5周期时间",
+          "required": false
+        },
+        {
+          "id": "taktTime",
+          "label": "节拍时间",
+          "type": "number",
+          "unit": "秒",
+          "placeholder": "请输入节拍时间",
+          "required": true
+        }
+      ],
+      "calculation": "const times = [station1Time, station2Time, station3Time, station4Time, station5Time].filter(t => t > 0); const totalTime = times.reduce((a, b) => a + b, 0); const stationCount = times.length; result = (totalTime / (stationCount * taktTime)) * 100",
+      "resultUnit": "%"
+    },
+    {
+      "id": "fpy-calculator",
+      "name": "一次合格率 (FPY)",
+      "description": "计算产品首次通过检验的合格比例",
+      "category": "效率指标",
+      "formula": "一次合格率 = 首次合格数量 / 投入数量 × 100%",
+      "fields": [
+        {
+          "id": "inputQuantity",
+          "label": "投入数量",
+          "type": "number",
+          "unit": "件",
+          "placeholder": "请输入投入生产的数量",
+          "required": true
+        },
+        {
+          "id": "firstPassGood",
+          "label": "首次合格数量",
+          "type": "number",
+          "unit": "件",
+          "placeholder": "请输入首次检验合格数量",
+          "required": true
+        }
+      ],
+      "calculation": "result = (firstPassGood / inputQuantity) * 100",
+      "resultUnit": "%"
+    },
+    {
+      "id": "defect-rate-calculator",
+      "name": "不良率",
+      "description": "计算产品不良率，反映产品质量水平",
+      "category": "效率指标",
+      "formula": "不良率 = 不良品数量 / 总产量 × 100%",
+      "fields": [
+        {
+          "id": "totalOutput",
+          "label": "总产量",
+          "type": "number",
+          "unit": "件",
+          "placeholder": "请输入总产量",
+          "required": true
+        },
+        {
+          "id": "defectQuantity",
+          "label": "不良品数量",
+          "type": "number",
+          "unit": "件",
+          "placeholder": "请输入不良品数量",
+          "required": true
+        }
+      ],
+      "calculation": "result = (defectQuantity / totalOutput) * 100",
+      "resultUnit": "%"
+    },
+    {
       "id": "inventory-turnover-calculator",
-      "name": "库存周转率计算器",
-      "description": "计算库存周转率，衡量库存管理效率的重要指标",
+      "name": "库存周转率",
+      "description": "计算库存周转率，衡量库存管理效率",
       "category": "库存管理",
       "formula": "库存周转率 = 销售成本 / 平均库存价值",
       "fields": [
         {
           "id": "costOfGoodsSold",
-          "label": "销售成本",
+          "label": "期间销售成本",
           "type": "number",
           "unit": "元",
           "placeholder": "请输入期间销售成本",
           "required": true
         },
         {
-          "id": "averageInventory",
-          "label": "平均库存价值",
+          "id": "beginningInventory",
+          "label": "期初库存价值",
           "type": "number",
           "unit": "元",
-          "placeholder": "请输入平均库存价值",
+          "placeholder": "请输入期初库存价值",
+          "required": true
+        },
+        {
+          "id": "endingInventory",
+          "label": "期末库存价值",
+          "type": "number",
+          "unit": "元",
+          "placeholder": "请输入期末库存价值",
           "required": true
         }
       ],
-      "calculation": "result = costOfGoodsSold / averageInventory",
+      "calculation": "const averageInventory = (beginningInventory + endingInventory) / 2; result = costOfGoodsSold / averageInventory",
       "resultUnit": "次/期"
+    },
+    {
+      "id": "inventory-days-calculator",
+      "name": "库存周转天数",
+      "description": "计算库存周转天数，即库存平均存放时间",
+      "category": "库存管理",
+      "formula": "库存周转天数 = 期间天数 / 库存周转率",
+      "fields": [
+        {
+          "id": "periodDays",
+          "label": "期间天数",
+          "type": "number",
+          "unit": "天",
+          "placeholder": "请输入期间天数（如365天）",
+          "required": true
+        },
+        {
+          "id": "turnoverRate",
+          "label": "库存周转率",
+          "type": "number",
+          "unit": "次",
+          "placeholder": "请输入库存周转率",
+          "required": true
+        }
+      ],
+      "calculation": "result = periodDays / turnoverRate",
+      "resultUnit": "天"
+    },
+    {
+      "id": "wip-calculator",
+      "name": "在制品数量 (WIP)",
+      "description": "使用利特尔法则计算在制品数量",
+      "category": "库存管理",
+      "formula": "WIP = 生产周期 × 产出率",
+      "fields": [
+        {
+          "id": "leadTime",
+          "label": "生产周期",
+          "type": "number",
+          "unit": "天",
+          "placeholder": "请输入生产周期",
+          "required": true
+        },
+        {
+          "id": "dailyOutput",
+          "label": "日产出量",
+          "type": "number",
+          "unit": "件/天",
+          "placeholder": "请输入日产出量",
+          "required": true
+        }
+      ],
+      "calculation": "result = leadTime * dailyOutput",
+      "resultUnit": "件"
+    },
+    {
+      "id": "lead-time-calculator",
+      "name": "生产周期 (Lead Time)",
+      "description": "使用利特尔法则计算生产周期",
+      "category": "效率指标",
+      "formula": "生产周期 = WIP数量 / 产出率",
+      "fields": [
+        {
+          "id": "wipQuantity",
+          "label": "在制品数量",
+          "type": "number",
+          "unit": "件",
+          "placeholder": "请输入在制品数量",
+          "required": true
+        },
+        {
+          "id": "outputRate",
+          "label": "产出率",
+          "type": "number",
+          "unit": "件/天",
+          "placeholder": "请输入日产出率",
+          "required": true
+        }
+      ],
+      "calculation": "result = wipQuantity / outputRate",
+      "resultUnit": "天"
+    },
+    {
+      "id": "kanban-quantity-calculator",
+      "name": "看板数量",
+      "description": "计算需要的看板数量",
+      "category": "生产控制",
+      "formula": "看板数量 = (日需求 × 生产周期 + 安全库存) / 容器容量",
+      "fields": [
+        {
+          "id": "dailyDemand",
+          "label": "日需求量",
+          "type": "number",
+          "unit": "件/天",
+          "placeholder": "请输入日需求量",
+          "required": true
+        },
+        {
+          "id": "productionLeadTime",
+          "label": "生产周期",
+          "type": "number",
+          "unit": "天",
+          "placeholder": "请输入生产周期",
+          "required": true
+        },
+        {
+          "id": "safetyStock",
+          "label": "安全库存",
+          "type": "number",
+          "unit": "件",
+          "placeholder": "请输入安全库存",
+          "required": false
+        },
+        {
+          "id": "containerCapacity",
+          "label": "容器容量",
+          "type": "number",
+          "unit": "件/容器",
+          "placeholder": "请输入每个容器的容量",
+          "required": true
+        }
+      ],
+      "calculation": "result = Math.ceil((dailyDemand * productionLeadTime + (safetyStock || 0)) / containerCapacity)",
+      "resultUnit": "张"
+    },
+    {
+      "id": "manpower-calculator",
+      "name": "人员需求计算",
+      "description": "根据产量和周期时间计算所需人员数量",
+      "category": "生产计划",
+      "formula": "人员数 = 总工作量 / 有效工作时间",
+      "fields": [
+        {
+          "id": "dailyDemand",
+          "label": "日需求量",
+          "type": "number",
+          "unit": "件/天",
+          "placeholder": "请输入日需求量",
+          "required": true
+        },
+        {
+          "id": "cycleTime",
+          "label": "周期时间",
+          "type": "number",
+          "unit": "秒/件",
+          "placeholder": "请输入周期时间",
+          "required": true
+        },
+        {
+          "id": "availableMinutesPerPerson",
+          "label": "每人可用时间",
+          "type": "number",
+          "unit": "分钟/天",
+          "placeholder": "请输入每人每天可用时间",
+          "required": true
+        },
+        {
+          "id": "efficiency",
+          "label": "工作效率",
+          "type": "number",
+          "unit": "%",
+          "placeholder": "请输入工作效率（默认85%）",
+          "required": false
+        }
+      ],
+      "calculation": "const totalWorkSeconds = dailyDemand * cycleTime; const effectiveMinutes = availableMinutesPerPerson * ((efficiency || 85) / 100); result = Math.ceil(totalWorkSeconds / 60 / effectiveMinutes)",
+      "resultUnit": "人"
+    },
+    {
+      "id": "capacity-calculator",
+      "name": "产能计算",
+      "description": "计算设备或生产线的日产能",
+      "category": "生产计划",
+      "formula": "日产能 = 可用时间 × 效率 / 周期时间",
+      "fields": [
+        {
+          "id": "availableTime",
+          "label": "可用时间",
+          "type": "number",
+          "unit": "分钟/天",
+          "placeholder": "请输入每天可用时间",
+          "required": true
+        },
+        {
+          "id": "cycleTime",
+          "label": "周期时间",
+          "type": "number",
+          "unit": "秒/件",
+          "placeholder": "请输入周期时间",
+          "required": true
+        },
+        {
+          "id": "efficiency",
+          "label": "设备效率",
+          "type": "number",
+          "unit": "%",
+          "placeholder": "请输入设备效率（默认85%）",
+          "required": false
+        }
+      ],
+      "calculation": "result = Math.floor((availableTime * 60 * ((efficiency || 85) / 100)) / cycleTime)",
+      "resultUnit": "件/天"
+    },
+    {
+      "id": "changeover-time-reduction",
+      "name": "换模时间改善率",
+      "description": "计算换模时间改善效果",
+      "category": "效率改善",
+      "formula": "改善率 = (改善前 - 改善后) / 改善前 × 100%",
+      "fields": [
+        {
+          "id": "beforeTime",
+          "label": "改善前换模时间",
+          "type": "number",
+          "unit": "分钟",
+          "placeholder": "请输入改善前换模时间",
+          "required": true
+        },
+        {
+          "id": "afterTime",
+          "label": "改善后换模时间",
+          "type": "number",
+          "unit": "分钟",
+          "placeholder": "请输入改善后换模时间",
+          "required": true
+        }
+      ],
+      "calculation": "result = ((beforeTime - afterTime) / beforeTime) * 100",
+      "resultUnit": "%"
+    },
+    {
+      "id": "productivity-calculator",
+      "name": "人均产出",
+      "description": "计算人均产出，衡量劳动生产率",
+      "category": "效率指标",
+      "formula": "人均产出 = 总产量 / 总人数",
+      "fields": [
+        {
+          "id": "totalOutput",
+          "label": "总产量",
+          "type": "number",
+          "unit": "件",
+          "placeholder": "请输入总产量",
+          "required": true
+        },
+        {
+          "id": "totalManpower",
+          "label": "总人数",
+          "type": "number",
+          "unit": "人",
+          "placeholder": "请输入总人数",
+          "required": true
+        },
+        {
+          "id": "periodDays",
+          "label": "期间天数",
+          "type": "number",
+          "unit": "天",
+          "placeholder": "请输入期间天数",
+          "required": false
+        }
+      ],
+      "calculation": "const dailyOutput = periodDays ? totalOutput / periodDays : totalOutput; result = dailyOutput / totalManpower",
+      "resultUnit": "件/人/天"
+    },
+    {
+      "id": "utilization-rate-calculator",
+      "name": "设备利用率",
+      "description": "计算设备利用率，反映设备实际使用情况",
+      "category": "效率指标",
+      "formula": "利用率 = 实际运行时间 / 日历时间 × 100%",
+      "fields": [
+        {
+          "id": "calendarTime",
+          "label": "日历时间",
+          "type": "number",
+          "unit": "小时",
+          "placeholder": "请输入日历时间（如24小时）",
+          "required": true
+        },
+        {
+          "id": "plannedDowntime",
+          "label": "计划停机时间",
+          "type": "number",
+          "unit": "小时",
+          "placeholder": "请输入计划停机时间",
+          "required": false
+        },
+        {
+          "id": "unplannedDowntime",
+          "label": "非计划停机时间",
+          "type": "number",
+          "unit": "小时",
+          "placeholder": "请输入非计划停机时间",
+          "required": false
+        }
+      ],
+      "calculation": "const actualRunTime = calendarTime - (plannedDowntime || 0) - (unplannedDowntime || 0); result = (actualRunTime / calendarTime) * 100",
+      "resultUnit": "%"
+    },
+    {
+      "id": "mtbf-calculator",
+      "name": "平均故障间隔时间 (MTBF)",
+      "description": "计算设备平均故障间隔时间，衡量设备可靠性",
+      "category": "设备管理",
+      "formula": "MTBF = 总运行时间 / 故障次数",
+      "fields": [
+        {
+          "id": "totalRunTime",
+          "label": "总运行时间",
+          "type": "number",
+          "unit": "小时",
+          "placeholder": "请输入总运行时间",
+          "required": true
+        },
+        {
+          "id": "failureCount",
+          "label": "故障次数",
+          "type": "number",
+          "unit": "次",
+          "placeholder": "请输入故障次数",
+          "required": true
+        }
+      ],
+      "calculation": "result = totalRunTime / failureCount",
+      "resultUnit": "小时"
+    },
+    {
+      "id": "mttr-calculator",
+      "name": "平均修复时间 (MTTR)",
+      "description": "计算设备平均修复时间，衡量维护效率",
+      "category": "设备管理",
+      "formula": "MTTR = 总修复时间 / 故障次数",
+      "fields": [
+        {
+          "id": "totalRepairTime",
+          "label": "总修复时间",
+          "type": "number",
+          "unit": "小时",
+          "placeholder": "请输入总修复时间",
+          "required": true
+        },
+        {
+          "id": "failureCount",
+          "label": "故障次数",
+          "type": "number",
+          "unit": "次",
+          "placeholder": "请输入故障次数",
+          "required": true
+        }
+      ],
+      "calculation": "result = totalRepairTime / failureCount",
+      "resultUnit": "小时"
     }
   ]
 }

@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { Calculator } from "@/lib/calculators";
 import { calculate, type CalculationResult } from "@/lib/calculations";
 import { CalculatorForm } from "@/components/CalculatorForm";
 import { ResultDisplay } from "@/components/ResultDisplay";
-import Link from "next/link";
 
 interface CalculatorClientProps {
   calculator: Calculator;
@@ -26,15 +26,20 @@ export function CalculatorClient({ calculator }: CalculatorClientProps) {
     const inputs: Record<string, number> = {};
 
     for (const field of calculator.fields) {
-      const val = values[field.id];
-      if (!val || isNaN(Number(val))) {
-        setError(`请输入有效的${field.label}`);
-        return;
+      if (field.required) {
+        const val = values[field.id];
+        if (!val || isNaN(Number(val))) {
+          setError(`请输入有效的${field.label}`);
+          return;
+        }
       }
-      inputs[field.id] = Number(val);
+      const val = values[field.id];
+      if (val && !isNaN(Number(val))) {
+        inputs[field.id] = Number(val);
+      }
     }
 
-    const calcResult = calculate(calculator.id, inputs);
+    const calcResult = calculate(calculator, inputs);
     if (calcResult) {
       setResult(calcResult);
       setError("");
@@ -44,18 +49,18 @@ export function CalculatorClient({ calculator }: CalculatorClientProps) {
   };
 
   return (
-    <main className="min-h-screen p-8 bg-gray-50">
+    <main className="min-h-screen p-8 bg-slate-50">
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
           <Link
             href="/calculator"
-            className="text-blue-600 hover:text-blue-800 text-sm mb-2 inline-block"
+            className="text-blue-600 hover:text-blue-800 text-sm mb-2 inline-block cursor-pointer"
           >
             ← 返回计算器列表
           </Link>
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-slate-900">
                 {calculator.name}
               </h1>
               <span className="inline-block px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded mt-2">
@@ -63,13 +68,13 @@ export function CalculatorClient({ calculator }: CalculatorClientProps) {
               </span>
             </div>
           </div>
-          <p className="text-gray-600 mt-3">{calculator.description}</p>
+          <p className="text-slate-600 mt-3">{calculator.description}</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <div className="p-4 bg-gray-50 rounded-lg mb-6">
-            <p className="text-sm text-gray-500 mb-1">计算公式</p>
-            <p className="font-mono text-lg text-gray-800">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+          <div className="p-4 bg-slate-50 rounded-lg mb-6">
+            <p className="text-sm text-slate-500 mb-1">计算公式</p>
+            <p className="font-mono text-lg text-slate-800">
               {calculator.formula}
             </p>
           </div>
@@ -84,7 +89,12 @@ export function CalculatorClient({ calculator }: CalculatorClientProps) {
 
         {(result || error) && (
           <div className="mb-6">
-            <ResultDisplay result={result} error={error} />
+            <ResultDisplay result={result} />
+            {error && (
+              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-700">{error}</p>
+              </div>
+            )}
           </div>
         )}
       </div>

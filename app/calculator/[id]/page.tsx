@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getCalculatorById, getCalculatorIds, type Calculator } from "@/lib/calculators";
+import { getCalculatorById, getAllCalculators, type Calculator } from "@/lib/calculators";
 import { CalculatorClient } from "@/components/CalculatorClient";
 
 interface CalculatorDetailPageProps {
@@ -7,8 +7,8 @@ interface CalculatorDetailPageProps {
 }
 
 export async function generateStaticParams() {
-  const ids = getCalculatorIds();
-  return ids.map((id) => ({ id }));
+  const calculators = getAllCalculators();
+  return calculators.map((calc) => ({ id: calc.id }));
 }
 
 export default async function CalculatorDetailPage({
