@@ -4,7 +4,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "精通精益 - 精益生产知识学习平台",
+  title: "精益通 - 精益生产知识学习平台",
   description: "学习精益生产知识，使用专业计算工具，提升生产效率与质量管理水平",
 };
 

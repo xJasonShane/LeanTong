@@ -41,7 +41,7 @@ export default function Home() {
             精益生产学习平台
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 animate-fade-in stagger-1">
-            精通精益
+            精益通
           </h1>
           <p className="text-lg md:text-xl text-slate-600 mb-8 max-w-2xl mx-auto leading-relaxed animate-fade-in stagger-2">
             学习精益生产知识，使用专业计算工具，助力持续改进与效率提升

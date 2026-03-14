@@ -1,4 +1,4 @@
-# 精通精益
+# 精益通
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.5.12-black?style=flat-square&logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.0.0-61dafb?style=flat-square&logo=react)](https://react.dev/)
