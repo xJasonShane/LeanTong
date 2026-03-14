@@ -152,19 +152,38 @@ leantong/
 1. 将项目推送到 GitHub/GitLab
 2. 在 Cloudflare Pages 中连接仓库
 3. 配置构建设置：
+   - 框架预设：Next.js (Static Export)
    - 构建命令：`npm run build`
    - 输出目录：`out`
 4. 部署！
 
-### 腾讯 EdgeOne
+### 腾讯 EdgeOne Pages
 
 1. 将项目推送到 GitHub/GitLab
 2. 在 EdgeOne Pages 中创建项目
-3. 配置构建设置：
-   - 框架预设：Next.js (Static)
+3. **重要配置**：
+   - 框架预设：**Other** 或 **Next.js (Static)**
    - 构建命令：`npm run build`
    - 输出目录：`out`
 4. 部署！
+
+**EdgeOne 常见问题排查**：
+
+如果遇到 404 错误，请检查：
+
+1. 输出目录是否设置为 `out`（不是 `.next` 或 `dist`）
+2. 确保构建成功后 `out` 目录下有 `index.html` 文件
+3. 项目已配置 `trailingSlash: true` 以兼容静态托管
+
+### Vercel 部署
+
+```bash
+# 安装 Vercel CLI
+npm i -g vercel
+
+# 部署
+vercel
+```
 
 ### 本地静态部署
 

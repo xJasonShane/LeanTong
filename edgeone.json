@@ -1,0 +1,12 @@
+{
+  "routes": [
+    {
+      "src": "/calculator/(.*)",
+      "dest": "/calculator/$1/index.html"
+    },
+    {
+      "src": "/wiki/(.*)",
+      "dest": "/wiki/$1/index.html"
+    }
+  ]
+}
