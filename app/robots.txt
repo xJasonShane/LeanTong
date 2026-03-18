@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://jingyitong.cn/sitemap.xml
